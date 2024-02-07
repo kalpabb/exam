@@ -1,0 +1,297 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
+class usercontroller extends Controller
+{
+   public function viewregister(){
+       return view('register');
+   }
+
+   public function insertuser(Request $req){
+    
+
+
+   $req->validate([
+       'name'=>'required|max:100|string',
+       'email'=>'required|unique:users',
+       'phone'=>'required|max:10',
+       'address'=>'required|max:100|string',
+       'password'=>'required|string|confirmed',
+   ]);
+
+   $data['name']=$req->name;
+   $data['email']=$req->email;
+   $data['phone']=$req->phone;
+   $data['address']=$req->address;
+   $data['password']=$req->password;
+
+   
+   $newuser=User::create($data);
+
+   if($newuser){
+    return redirect('/register')->with('status',"user register successfully");
+   }else{
+    return redirect('/register')->with('status',"user register faild");
+   }
+
+   }
+
+
+   public function viewlogin(){
+       return view('login');
+   }
+
+   public function userlogin(Request $req){
+    
+   $req->validate([
+       'email'=>'required',
+       'password'=>'required',
+   ]);
+
+   $creadentials=$req->only('email','password');
+
+   if(Auth::attempt($creadentials)){
+       //return redirect('/login')->with('status',"login successfull");
+      return view('/success');
+   }else{
+       return redirect('/login')->with('status',"login failed");
+   }
+
+   }
+}
+
+=================================================================================
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/register',[usercontroller::class,'viewregister'])->name('viewregister');
+
+Route::post('/register',[usercontroller::class,'insertuser'])->name('insertuser');
+
+Route::get('/login',[usercontroller::class,'viewlogin'])->name('viewlogin');
+
+Route::post('/login',[usercontroller::class,'userlogin'])->name('userlogin');
+
+======================
+
+"{{route('insertuser')}}
+
+@csrf
+        <label>Name: </label>
+        <input type="text" name="name" placeholder="enter your name here" >
+        @error('name')
+        <span style=color:red>{{$message}}</span>
+        @enderror
+        <br><br>
+
+@if(session('status'))
+        <span style=color:red>{{session('status')}}</span>
+        @endif
+========================
+<?php
+
+   include 'connection.php';
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Register Form</title>
+
+	<script src="script.js"></script>
+
+</head>
+<body>
+
+	<form action="" method="post"  name="form" onsubmit="return myfunction()"> 
+
+		<input type="text" name="name" placeholder="Enter Name"><span id="name" style="color:red"></span><br><br>
+	 <input type="email" name="email" placeholder="Enter Email"><span id="email" style="color:red"></span><br><br>
+		<input type="password" name="password" placeholder="Enter password"><span id="password" style="color:red"></span><br><br>
+
+		<input type="submit" name="submit" value="submit">
+	</form>
+
+</body>
+</html>
+<?php
+ 
+   if(isset($_POST['submit'])){
+
+   	$name = $_POST['name'];
+   	$email =$_POST['email'];
+   	$password=$_POST['password'];
+
+   	$qry ="INSERT INTO my VALUES(NULL,'$name','$email','$password')";
+
+   	if(mysqli_query($conn,$qry)){
+
+   		header('location:display.php?data inserted');
+   	}else{
+   		mysqli_error($conn);
+   	}
+   }
+
+
+
+?>
+
+
+------------------------------------------------------
+<?php
+
+
+$conn =mysqli_connect("localhost","root","","newdb");
+
+
+?>
+---------------------------------
+<?php
+
+  include 'connection.php';
+
+?>
+
+<?php
+
+  $id= $_GET['id'];
+
+   $del ="delete from my where id=$id";
+
+   if(mysqli_query($conn,$del)){
+
+   	header('location:display.php');
+   }
+
+	?>
+------------------------------------
+display
+<?php
+
+   include 'connection.php';
+
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Display</title>
+</head>
+<body>
+
+	<table border="1">
+		
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Email</th>
+			<th>password</th>
+			<th>Operator</th>
+		</tr>
+
+
+		<?php
+
+   $qry ="select * from my";
+
+
+   $result = mysqli_query($conn,$qry);
+
+   $check = mysqli_num_rows($result);
+
+   if($check>0){
+   	   while($row = mysqli_fetch_assoc($result)){
+   	   	$id =$row['id'];
+   	 
+	?>
+
+	<tr>
+        <td> <?php echo $row['id']; ?></td>
+        <td><?php echo $row['name']; ?></td>
+        <td><?php echo $row['email']; ?></td>
+        <td><?php echo $row['password']; ?></td>
+        <td><a href="delete.php?id=<?php echo $id; ?>">Delete</a><br><a href="edit.php?id=<?php echo $id;?>">Edit</a></td>
+	</tr>
+
+	   
+
+	<?php
+    }
+   }
+
+	?>
+		</table>
+
+</body>
+</html>
+
+
+
+------------------------------------
+
+edit
+
+<?php
+
+  include 'connection.php';
+?>
+
+<?php
+
+$id = $_GET['id'];
+?>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+</head>
+<body>
+
+	<form action="" method="post"> 
+    <input type="text" value="<?php echo $id; ?>"><br><br>
+	<input type="text" name="name" placeholder="Enter Name"><br><br>
+	 <input type="email" name="email" placeholder="Enter Email"></span><br><br>
+		<input type="password" name="password" placeholder="Enter password"></span><br><br>
+
+		<input type="submit" name="update" value="update">
+	</form>
+ 
+
+</body>
+</html>
+
+<?php
+
+  if(isset($_POST['update'])){
+
+  	$name = $_POST['name'];
+  	$email=$_POST['email'];
+  	$password=$_POST['password'];
+
+  	$qry = "update my set name = '$name', email='$email',password='$password' where id='$id'";
+
+  	if(mysqli_query($conn,$qry)){
+  		header('location:display.php?updated');
+  	}
+  }
+
+
+
+	?>
+
+
