@@ -1,0 +1,107 @@
+colors([red,blue,green,yellow,pink]).
+
+is_color_available :- colors(Colors),
+    memberchk(pink,Colors).
+
+update_colors(NewColors) :- colors(Colors),
+    (   is_color_available
+    ->  append(Colors,[gray],NewColors)
+    ;   append(Colors,[pink],NewColors)
+    ).
+
+last_color_in_descending_order(LastColors) :-
+    update_colors(NewColors),
+    sort(0,@>=,NewColors,SortedColors),
+    last(SortedColors,LastColors).
+
+number_of_colors(Count):-
+    update_colors(NewColors),
+    length(NewColors,Count).
+
+student('Saman','Perera',11021).
+student('Mohamed','Humaith',11022).
+student('Nimal','Silva',11023).
+student('Viji','Kumar',11024).
+student('Lasantha','Jayamanna',11025).
+student('Nimal','Silva',11026).
+student('Ponnambalam','Ramanadan',11027).
+
+scores(11021,50,71,57,65,61).
+scores(11022,65,50,85,49,82).
+scores(11023,100,85,100,89,76).
+scores(11024,73,65,59,82,66).
+scores(11025,60,90,78,96,100).
+
+is_students('Janaka'):-
+    student('Janaka',_,_).
+
+registered_student(FirstName,LastName):-
+    student(FirstName,LastName,_).
+
+index_number_of_silva(Index):-
+    student(_,'Silva',Index).
+
+who_sat_exam:-
+    findall((FirstName,LastName),(student(FirstName,LastName,Index),scores(Index,_,_,_,_,_)),Students),
+    format('students who sat the exam: ~w~n',[Students]).
+
+who_missed_exam:-
+    findall((FirstName,LastName),(student(FirstName,LastName,Index),\+scores(Index,_,_,_,_,_)),Students),
+    format('students who sat the exam: ~w~n',[Students]).
+
+scored_100:-
+    scores(_,100,_,_,_,_);
+    scores(_,_,100,_,_,_);
+    scores(_,_,_,100,_,_);
+    scores(_,_,_,_,100,_);
+    scores(_,_,_,_,_,100).
+
+who_scored_100(FirstName,LastName,Index,CourseCode):-
+
+    scores(Index,UCT31021,SWT31012,CIS31012,SWT31022,NST31022),
+    student(FirstName,LastName,Index),
+
+    (   UCT31021 = 100, CourseCode = 'UCT31021',nl;
+        SWT31012 = 100, CourseCode = 'SWT31012',nl;
+        CIS31012 = 100, CourseCode = 'CIS31012',nl;
+        SWT31022 = 100, CourseCode = 'SWT31022',nl;
+        NST31022 = 100, CourseCode = 'NST31022',nl).
+
+========================================================
+
+max(X,Y,X):- X>=Y,!.
+max(_,Y,Y).
+
+d_step(X,Y):-
+    X<3,!,
+    Y=0.
+
+d_step(X,Y):-
+    X>3, X<6,!,
+    Y=2.
+
+d_step(X,Y):-
+    X>=6,!,
+    Y=4.
+
+even_chk(X):-
+    X>0, X mod 2=:=0,!,
+    format('~w is even number',[X]).
+
+%parent child
+parent(john,julia).
+
+%grand parent
+parent(peter,john).
+parent(peter,noah).
+parent(peter,amal).
+parent(peter,perera).
+
+%grand grand parent
+parent(paul,peter).
+parent(paul,sara).
+parent(paul,walker).
+perent(paul,tailor).
+
+ancestor(X,Y):- parent(X,Y),!.
+ancestor(X,Y):- parent(X,Z),ancestor(Z,Y).
