@@ -1602,6 +1602,302 @@ int main(int argc, char** argv[])
 
     return 0;
 }
+++++++
+fotren++++++++++++
+program add
+use mpi
+implicit none
+
+integer::rank,size,ierr
+integer::a,b,total
+
+call MPI_init(ierr)
+
+call MPI_Comm_rank(MPI_Comm_World,rank,ierr)
+call MPI_Comm_size(MPI_Comm_World,size,ierr)
+
+if(rank==0)then
+	
+	print*,"Enter First number:"
+	read*,a
+
+	print*,"Enter Second number:"
+	read*,b
+
+	call MPI_Send(a,1,MPI_Integer,1,0,MPI_Comm_World,ierr)
+	call MPI_Send(b,1,MPI_Integer,1,0,MPI_Comm_World,ierr)
+
+
+else if(rank==1)then
+	
+	call MPI_Recv(a,1,MPI_Integer,0,0,MPI_Comm_World,MPI_STATUS_IGNORE,ierr)
+	call MPI_Recv(b,1,MPI_Integer,0,0,MPI_Comm_World,MPI_STATUS_IGNORE,ierr)
+
+    total= a+b
+
+    call MPI_Send(total,1,MPI_Integer,2,1,MPI_Comm_World,ierr)
+
+else if(rank==2)then
+	
+	call MPI_Recv(total,1,MPI_Integer,1,1,MPI_Comm_World,MPI_STATUS_IGNORE,ierr)
+	print*,total
+
+end if
+call MPI_Finalize(ierr)
+end program add
+_________
+MPI PINGPONG
+_______
+#include <mpi.h>
+#include <stdio.h>
+
+#define PING_PONG_LIMIT 10
+
+int main(int argc, char** argv) {
+    // Initialize the MPI environment
+    MPI_Init(&argc, &argv);
+
+    // Get the rank of the process
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+    // Get the number of processes
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+    // Ensure we are working with exactly 2 processes
+    if (world_size != 2) {
+        fprintf(stderr, "World size must be 2 for this program\n");
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+
+    int ping_pong_count = 0;
+    int partner_rank = (world_rank + 1) % 2;
+
+    while (ping_pong_count < PING_PONG_LIMIT) {
+        if (world_rank == ping_pong_count % 2) {
+            // Increment the ping pong count and send it to the partner
+            ping_pong_count++;
+            MPI_Send(&ping_pong_count, 1, MPI_INT, partner_rank, 0, MPI_COMM_WORLD);
+            printf("Process %d sent ping_pong_count %d to process %d\n", world_rank, ping_pong_count, partner_rank);
+        } else {
+            // Receive the ping pong count from the partner
+            MPI_Recv(&ping_pong_count, 1, MPI_INT, partner_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            printf("Process %d received ping_pong_count %d from process %d\n", world_rank, ping_pong_count, partner_rank);
+        }
+    }
+
+    // Finalize the MPI environment
+    MPI_Finalize();
+
+    return 0;
+}
+_________
+no of procees
+______
+#include <mpi.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define DEFAULT_PING_PONG_LIMIT 10
+
+int main(int argc, char** argv) {
+    // Initialize the MPI environment
+    MPI_Init(&argc, &argv);
+
+    // Get the rank of the process
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+    // Get the number of processes
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+    // Set the ping-pong limit (modifiable via command-line arguments)
+    int ping_pong_limit = DEFAULT_PING_PONG_LIMIT;
+    if (argc > 1) {
+        ping_pong_limit = atoi(argv[1]);
+    }
+
+    // Validate the number of processes
+    if (world_size < 2) {
+        fprintf(stderr, "World size must be at least 2 for this program\n");
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+
+    int ping_pong_count = 0;
+    int partner_rank = (world_rank + 1) % world_size;
+
+    while (ping_pong_count < ping_pong_limit) {
+        if (ping_pong_count % world_size == world_rank) {
+            // Increment the ping pong count and send it to the next process
+            ping_pong_count++;
+            MPI_Send(&ping_pong_count, 1, MPI_INT, partner_rank, 0, MPI_COMM_WORLD);
+            printf("Process %d sent ping_pong_count %d to process %d\n", world_rank, ping_pong_count, partner_rank);
+        } else {
+            // Receive the ping pong count from the previous process
+            int source_rank = (world_rank - 1 + world_size) % world_size;
+            MPI_Recv(&ping_pong_count, 1, MPI_INT, source_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            printf("Process %d received ping_pong_count %d from process %d\n", world_rank, ping_pong_count, source_rank);
+        }
+    }
+
+    // Finalize the MPI environment
+    MPI_Finalize();
+
+    return 0;
+}
+---
+adition fortren
+---
+program Addition
+    implicit none
+    integer :: a, b, sum
+
+    print *, "Enter two integers:"
+    read *, a, b
+
+    sum = a + b
+    print *, "The sum is:", sum
+end program Addition
+-----
+factorial num
+----
+program Factorial
+    implicit none
+    integer :: n, i, fact
+
+    print *, "Enter a positive integer:"
+    read *, n
+
+    fact = 1
+    do i = 1, n
+        fact = fact * i
+    end do
+
+    print *, "The factorial of", n, "is", fact
+end program Factorial
+----
+check EVEN or ODD
+----
+program EvenOdd
+    implicit none
+    integer :: num
+
+    print *, "Enter an integer:"
+    read *, num
+
+    if (mod(num, 2) == 0) then
+        print *, num, "is even."
+    else
+        print *, num, "is odd."
+    end if
+end program EvenOdd
+----
+sum of array
+----
+program ArraySum
+    implicit none
+    integer, dimension(5) :: arr
+    integer :: i, sum
+
+    print *, "Enter 5 integers:"
+    read *, arr
+
+    sum = 0
+    do i = 1, 5
+        sum = sum + arr(i)
+    end do
+
+    print *, "The sum of the array elements is:", sum
+end program ArraySum
+---
+find the largest no
+---
+program ArraySum
+    implicit none
+    integer, dimension(5) :: arr
+    integer :: i, sum
+
+    print *, "Enter 5 integers:"
+    read *, arr
+
+    sum = 0
+    do i = 1, 5
+        sum = sum + arr(i)
+    end do
+
+    print *, "The sum of the array elements is:", sum
+end program ArraySum
+----
+Area of a Circle
+---
+program CircleArea
+    implicit none
+    real :: radius, area
+    real, parameter :: pi = 3.14159
+
+    print *, "Enter the radius of the circle:"
+    read *, radius
+
+    area = pi * radius**2
+    print *, "The area of the circle is:", area
+end program CircleArea
+----
+code ping pong
+-----
+program MPI_PingPong
+    use mpi
+    implicit none
+
+    integer :: rank, size, ierr
+    integer :: ping_pong_count, partner
+    integer, parameter :: ping_pong_limit = 10
+
+    ! Initialize MPI
+    call MPI_Init(ierr)
+
+    ! Get rank and size
+    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierr)
+    call MPI_Comm_size(MPI_COMM_WORLD, size, ierr)
+
+    ! Ensure only 2 processes
+    if (size /= 2) then
+        if (rank == 0) print *, "This program requires exactly 2 processes!"
+        call MPI_Abort(MPI_COMM_WORLD, 1, ierr)
+    end if
+
+    ! Ping-pong logic
+    ping_pong_count = 0
+    partner = mod(rank + 1, 2)
+
+    do while (ping_pong_count < ping_pong_limit)
+        if (mod(ping_pong_count, 2) == rank) then
+            ! Send the count
+            ping_pong_count = ping_pong_count + 1
+            call MPI_Send(ping_pong_count, 1, MPI_INTEGER, partner, 0, MPI_COMM_WORLD, ierr)
+            print *, "Process ", rank, " sent ", ping_pong_count, " to process ", partner
+        else
+            ! Receive the count
+            call MPI_Recv(ping_pong_count, 1, MPI_INTEGER, partner, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
+            print *, "Process ", rank, " received ", ping_pong_count, " from process ", partner
+        end if
+    end do
+
+    ! Finalize MPI
+    call MPI_Finalize(ierr)
+end program MPI_PingPong
+
+
+
+
+
+
+
+
+
+
+
 
 ++++++
 Run 
@@ -1633,7 +1929,17 @@ MPI
 touch one.c
 mpicc ./text.c -o text
 mpirun -np 3 .lone
-
+____
+MPI FOTREN run
+__
+mpi90f -O add add.f90
+npirun -np 3 ./add
+___
+MPI PING PONG
+___
+mpicc -o ping_pong ping_pong.c
+mpirun -np 4 ./ping_pong         //  For 4 processes
+mpirun -np 4 ./ping_pong 20        // Set the ping-pong limit to 20
 
 
 
