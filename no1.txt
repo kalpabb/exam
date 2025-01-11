@@ -1,0 +1,326 @@
+---------------------react---------------------------
+npm create vite@latest
+
+
+
+----------------------laravel------------------------
+composer create-project laravel/laravel thename
+
+
+
+
+make a controller name = UserController
+php artisan make:controller UserController
+
+use App\Http\Controllers\UserController; in web.php
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    public function registration()
+    {
+        return view('registration');
+    }
+
+    public function login()
+    {
+        return view('login');
+    }
+}
+
+**Model**
+
+to make model = php artisan make:model modelname
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class register extends Model
+{
+    use HasFactory;
+
+    protected $fillable =[
+
+        'user_id',
+        'name',
+        'email',
+        'password',
+        'email_verified_at',
+        'password',
+
+    ];
+}
+
+4.149.240.2
+
+---------php---------------
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Validation</title>
+
+    <!-- program path ---------------->
+<script>
+    function validateform(){
+        var name = document.forms["myform"]["firstname"].value;
+        var email = document.forms["myform"]["email"].value;
+        var nic = document.forms["myform"]["nic"].value;
+        var tel = document.forms["myform"]["tel"].value;
+        var pass = document.forms["myform"]["pass"].value;
+        var repass = document.forms["myform"]["repass"].value;
+       document.getElementById("error").style.color = "red";
+
+        if(name == "" | email == "" | nic =="" | tel == "" | pass == "" | repass == ""){
+            document.getElementById('error').innerHTML = "required fields are must be fielled out";
+            return false;
+        } 
+        else if(name.length > 20){
+            document.getElementById('errname').innerHTML = "name must be no more than 20 Letters";
+            return false;
+
+        }
+        else if(pass.length >= 8){
+            document.getElementById('errpass').innerHTML = "Password must contain min 8 chars cant enter more than 8";
+            return false;
+
+        }
+       else if(pass != repass){
+            document.getElementById('errrepass').innerHTML = "password is not same plese check the password again";
+            return false;
+        }
+        }
+            function passmatch(){
+                var pass = document.forms["myform"]["pass"].value;
+                var repass = document.forms["myform"]["repass"].value;
+                if(pass == repass){
+                    
+                    document.getElementById("errrepass").innerHTML = "password is matching!";
+					document.getElementById("errrepass").style.color="green";
+                }else{
+                    
+                    document.getElementById("errrepass").innerHTML = "password is not matching!";
+					document.getElementById("errrepass").style.color="red";
+            }
+         
+
+     }
+
+</script>
+
+</head>
+<body>
+
+<!-- design----------------------------->
+
+    <div style="width: 500px; height:auto; padding:30px; background:#10101010; margin: 30px auto;">
+    <div id="error"></div>
+
+    <form action="connect.php" method="POST" name="myform" onsubmit="return validateform()" >
+    
+        <p>Name     : <input type = "text" id="firstname" name="firstname" title="Only string and spaces and no more 20 charcters allowed"  ><span id="errname"></span></p>
+        <p>Email    : <input type = "email" id="email" name="email" ><span id="errrepassmail"></span></p>
+        <p>NIC No   : <input type = "text" id="nic" name="nic" pattern="[a-zA-Z0-9]{10,12}" title="only numbers and string allowed"></p>
+        <p>Telephone No: <input type = "text" id="tel" name="tel" pattern="[0-9]{10}" title="numbers are allowed" ></p>
+        <p>password: <input type = "password" id="pass" name="pass"  ><span id="errpass"></span></p>
+        <p>Re Enter Password: <input type = "password" id="repass" name="repass" onkeyup="passmatch()"><span id="errrepass"></span></p>
+        <p><input type="submit" name="submit" id="submit"></p>
+
+    </form>
+    </div>
+</body>
+</html>
+/*  <?php 
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "formexplain";
+
+    
+        $firstname = $_POST['firstname'];
+        $email = $_POST['email'];
+        $nic = $_POST['nic'];
+        $tel = $_POST['tel'];
+        $pass = $_POST['pass'];
+
+
+    //database connect
+
+    $conn = new mysqli('localhost','root','','formexplain');
+    if($conn->connect_error){
+    //if error
+        die('connection failed : '.$conn->connection_error);
+
+    }else{
+        $stmt = $conn->prepare("insert into registration(firstname, email, nic, tel, pass) values(?,?,?,?,?)");
+
+        $stmt->bind_param("sssis",$firstname, $email, $nic, $tel, $pass);
+        $stmt->execute(); 
+        echo "Registeration Sucessfully...";
+        $stmt->close();
+        $conn->close();
+
+    }
+
+
+
+?>*/
+
+++++++ php all in one
+<?php
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+   
+    $servername = "localhost";
+    $username = "root";
+    $password = ""; 
+    $dbname = "kalpa"; 
+
+   
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+   
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+		$firstName = trim($_POST['first_name'] ?? '');
+		$lastName = trim($_POST['last_name'] ?? '');
+		$email = trim($_POST['email'] ?? '');
+		$password = $_POST['password'] ?? '';
+		$confirmPassword = $_POST['confirm_password'] ?? ''; 
+
+
+		
+		$errors = [];
+		if (empty($firstName)) $errors[] = "First name is required.";
+		if (empty($lastName)) $errors[] = "Last name is required.";
+		if (empty($email)) $errors[] = "Email is required.";
+		if (empty($password)) $errors[] = "Password is required.";
+		if ($password !== $confirmPassword) $errors[] = "Passwords do not match.";
+
+
+    
+    if (empty($errors)) {
+        
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+        
+        $sql = "INSERT INTO bassa (first_name, last_name, email, password) 
+                VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssss", $firstName, $lastName, $email, $hashedPassword);
+
+        if ($stmt->execute()) {
+            $successMessage = "Registration successful!";
+        } else {
+            $errors[] = "Error: " . $stmt->error;
+        }
+
+        $stmt->close();
+    }
+
+    $conn->close();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <script>
+        function validateForm() {
+            const firstName = document.getElementById('first_name').value.trim();
+            const lastName = document.getElementById('last_name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+
+            let errorMessage = '';
+            if (!firstName) errorMessage += 'First name is required.\n';
+            if (!lastName) errorMessage += 'Last name is required.\n';
+            if (!email) errorMessage += 'Email is required.\n';
+            if (!password) errorMessage += 'Password is required.\n';
+            if (password !== confirmPassword) errorMessage += 'Passwords do not match.\n';
+
+            if (errorMessage) {
+                alert(errorMessage);
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <h2>Registration Form</h2>
+    
+    <?php
+    
+    if (!empty($successMessage)) {
+        echo "<p style='color: green;'>$successMessage</p>";
+    } elseif (!empty($errors)) {
+        foreach ($errors as $error) {
+            echo "<p style='color: red;'>$error</p>";
+        }
+    }
+    ?>
+
+    <form action="" method="post" onsubmit="return validateForm()">
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" required><br><br>
+
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <label for="confirm_password">Confirm Password:</label>
+		<input type="password" id="confirm_password" name="confirm_password" required><br><br>
+
+
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
+
+
+*/
+----data base create---
+
+CREATE TABLE tablename (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+);
+
+*/
++++++++++
+invoke-WebReqest -Uri "" -O "text.txt"  
+++++
+
+Remove-Item "$env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt"
+ 
+
+
+
+
